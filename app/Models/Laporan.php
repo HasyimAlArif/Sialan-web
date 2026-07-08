@@ -16,6 +16,7 @@ class Laporan extends Model
         'judul',
         'deskripsi',
         'foto',
+        'tampil_galeri',
         'latitude',
         'longitude',
         'alamat_lokasi',
@@ -25,8 +26,9 @@ class Laporan extends Model
     ];
 
     protected $casts = [
-        'latitude' => 'decimal:7',
-        'longitude' => 'decimal:7',
+        'latitude'      => 'decimal:7',
+        'longitude'     => 'decimal:7',
+        'tampil_galeri' => 'boolean',
     ];
 
     public function admin()

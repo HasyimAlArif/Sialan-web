@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+
+        // Alias middleware robot
+        $middleware->alias([
+            'robot.token' => \App\Http\Middleware\RobotTokenMiddleware::class,
+        ]);
         
         // Redirect ke admin.login jika belum login (untuk routes admin)
         $middleware->redirectGuestsTo(function ($request) {

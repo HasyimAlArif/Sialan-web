@@ -55,9 +55,7 @@
     <nav class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-[1920px] mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-white text-blue-600 rounded-full w-10 h-10 flex items-center justify-center font-bold text-sm shadow-md">
-                    Logo
-                </div>
+                <img src="{{ asset('Assets/logo.png') }}" alt="SiALAN Logo" class="w-10 h-10 rounded-full shadow-md object-cover">
                 <span class="text-2xl font-bold tracking-wide">SiALAN</span>
             </div>
             
@@ -69,11 +67,74 @@
                 <a href="{{ Route::has('home') ? route('home').'#contact' : '#' }}" class="hover:text-blue-200 transition">Contact</a>
             </div>
             
-            <button class="md:hidden focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            {{-- Tombol Burger Menu Mobile --}}
+            <button id="mobileMenuBtn" class="md:hidden focus:outline-none" aria-label="Toggle menu" aria-expanded="false">
+                {{-- Icon Hamburger --}}
+                <svg id="iconHamburger" class="w-8 h-8 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                {{-- Icon Close (hidden by default) --}}
+                <svg id="iconClose" class="w-8 h-8 hidden transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
+
+        {{-- Mobile Menu Panel --}}
+        <div id="mobileMenu" class="md:hidden hidden overflow-hidden transition-all duration-300 ease-in-out max-h-0">
+            <div class="px-6 pb-4 pt-2 space-y-3 bg-blue-700 border-t border-blue-500">
+                <a href="{{ Route::has('home') ? route('home') : '/' }}" class="block py-2 px-3 rounded-lg hover:bg-blue-600 transition font-medium">Beranda</a>
+                <a href="{{ Route::has('home') ? route('home').'#peta-sebaran' : '#' }}" class="block py-2 px-3 rounded-lg hover:bg-blue-600 transition font-medium">Peta Sebaran</a>
+                <a href="{{ Route::has('aduan.create') ? route('aduan.create') : '/aduan' }}" class="block py-2 px-3 rounded-lg bg-blue-500 font-bold">Form Aduan</a>
+                <a href="{{ Route::has('home') ? route('home').'#contact' : '#' }}" class="block py-2 px-3 rounded-lg hover:bg-blue-600 transition font-medium">Contact</a>
+            </div>
+        </div>
     </nav>
+
+    {{-- Script untuk toggle mobile menu --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const iconHamburger = document.getElementById('iconHamburger');
+            const iconClose = document.getElementById('iconClose');
+
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    const isOpen = !mobileMenu.classList.contains('hidden');
+
+                    if (isOpen) {
+                        // Tutup menu
+                        mobileMenu.style.maxHeight = '0';
+                        setTimeout(() => {
+                            mobileMenu.classList.add('hidden');
+                        }, 300);
+                        iconHamburger.classList.remove('hidden');
+                        iconClose.classList.add('hidden');
+                        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                    } else {
+                        // Buka menu
+                        mobileMenu.classList.remove('hidden');
+                        // Trigger reflow agar animasi berjalan
+                        mobileMenu.offsetHeight;
+                        mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+                        iconHamburger.classList.add('hidden');
+                        iconClose.classList.remove('hidden');
+                        mobileMenuBtn.setAttribute('aria-expanded', 'true');
+                    }
+                });
+
+                // Tutup menu saat klik link (agar smooth scroll bisa jalan)
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.style.maxHeight = '0';
+                        setTimeout(() => {
+                            mobileMenu.classList.add('hidden');
+                        }, 300);
+                        iconHamburger.classList.remove('hidden');
+                        iconClose.classList.add('hidden');
+                        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                    });
+                });
+            }
+        });
+    </script>
 
     <main class="flex-grow">
         @yield('content')

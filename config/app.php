@@ -123,4 +123,14 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Robot API Token
+    |--------------------------------------------------------------------------
+    | Token rahasia untuk autentikasi API Robot/IoT.
+    | Atur nilai ROBOT_API_TOKEN di file .env Anda.
+    */
+
+    'robot_api_token' => env('ROBOT_API_TOKEN', ''),
+
 ];

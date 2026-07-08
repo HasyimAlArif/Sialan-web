@@ -9,6 +9,9 @@ use App\Models\Penugasan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class LaporanAssignController extends Controller
 {
@@ -29,7 +32,9 @@ class LaporanAssignController extends Controller
         ]);
 
         try {
-            DB::transaction(function () use ($request, $laporan) {
+            $penugasanId = null;
+
+            DB::transaction(function () use ($request, $laporan, &$penugasanId) {
                 // Update status laporan dan petugas_id
                 $laporan->update([
                     'petugas_id' => $request->petugas_id,
@@ -46,8 +51,33 @@ class LaporanAssignController extends Controller
                     'status' => 'ditugaskan',
                 ]);
 
+                $penugasanId = $penugasan->id;
                 Log::info('Penugasan Created:', $penugasan->toArray());
             });
+
+            // Kirim Push Notification FCM ke Petugas
+            $petugas = Petugas::find($request->petugas_id);
+            if ($petugas && $petugas->fcm_token) {
+                try {
+                    $factory = (new Factory)
+                        ->withServiceAccount(storage_path('app/firebase-auth.json'));
+                    
+                    $messaging = $factory->createMessaging();
+
+                    $message = CloudMessage::new()
+                        ->withToken($petugas->fcm_token)
+                        ->withNotification(Notification::create('Tugas Baru Diterima!', 'Anda mendapatkan tugas perbaikan jalan: ' . $laporan->judul))
+                        ->withData([
+                            'tugas_id' => (string) $penugasanId,
+                            'laporan_id' => (string) $laporan->id,
+                        ]);
+
+                    $messaging->send($message);
+                    Log::info('FCM Notification sent to petugas_id: ' . $petugas->id);
+                } catch (\Exception $e) {
+                    Log::error('FCM Notification Error: ' . $e->getMessage());
+                }
+            }
 
             return redirect()
                 ->route('laporan.show', $laporan->id)

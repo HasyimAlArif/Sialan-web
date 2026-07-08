@@ -159,11 +159,13 @@
                         </div>
 
                         <div>
-                            <label for="alamat_lokasi" class="form-label">Alamat Lokasi*</label>
+                            <label for="alamat_lokasi" class="form-label">Alamat Lokasi*
+                                <span id="alamat-loading" style="font-size:11px;color:#60a5fa;font-weight:normal;" class="hidden">⏳ Mencari alamat...</span>
+                            </label>
                             <textarea 
                                 id="alamat_lokasi" 
                                 name="alamat_lokasi"
-                                placeholder="Alamat lengkap lokasi kerusakan" 
+                                placeholder="Akan terisi otomatis saat memilih lokasi di peta" 
                                 rows="2" 
                                 class="custom-input w-full border border-blue-500 rounded px-4 py-3 text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white resize-none"
                                 required>{{ old('alamat_lokasi') }}</textarea>
@@ -264,17 +266,117 @@
         // Inisialisasi peta
         var map = L.map('map').setView([-7.55, 112.6], 10);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        var googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
+        var googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
+        var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
+        var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+            maxZoom: 20,
+            subdomains:['mt0','mt1','mt2','mt3']
+        });
+
+        var esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; <a href="http://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            maxZoom: 18
+        });
+
+        googleStreets.addTo(map);
+        L.control.layers({
+            'Streets': googleStreets,
+            'Hybrid': googleHybrid,
+            'Google Satellite': googleSat,
+            'Esri Satellite': esriSat,
+            'Terrain': googleTerrain
+        }, {}, { position: 'topright' }).addTo(map);
 
         var userMarker;
         var searchMarker;
 
+        var damageColors = {
+            'Retak Kulit Buaya (Alligator Cracking)': '#8B4513',
+            'Retak Tepi (Edge Cracking)': '#FF8C00',
+            'Tambalan dan Galian Utilitas': '#696969',
+            'Lubang (Potholes)': '#DC143C',
+            'Pelepasan Butir (Weathering/Raveling)': '#DAA520'
+        };
+        var defaultColor = '#3B82F6';
+
+        function getMarkerIcon(color) {
+            return L.divIcon({
+                className: '',
+                html: '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="52" viewBox="0 0 38 52" style="filter:drop-shadow(0 4px 6px rgba(0,0,0,0.3)); cursor:grab;">'
+                    + '<path d="M19 0C8.507 0 0 8.507 0 19c0 14.25 19 33 19 33S38 33.25 38 19C38 8.507 29.493 0 19 0z" fill="' + color + '"/>'
+                    + '<circle cx="19" cy="19" r="8" fill="#fff"/>'
+                    + '</svg>',
+                iconSize:    [38, 52],
+                iconAnchor:  [19, 52],
+            });
+        }
+
+        var judulSelect = document.getElementById('judul');
+        
+        function getCurrentColor() {
+            var selected = judulSelect ? judulSelect.value : null;
+            return damageColors[selected] || defaultColor;
+        }
+
+        function updateMarkerColor() {
+            var color = getCurrentColor();
+            if (userMarker) userMarker.setIcon(getMarkerIcon(color));
+            if (searchMarker) searchMarker.setIcon(getMarkerIcon(color));
+        }
+
+        if (judulSelect) {
+            judulSelect.addEventListener('change', updateMarkerColor);
+        }
+
         function updateInputs(lat, lng) {
             document.getElementById('latitude').value = lat.toFixed(6);
             document.getElementById('longitude').value = lng.toFixed(6);
+            reverseGeocode(lat, lng);
+        }
+
+        function reverseGeocode(lat, lng) {
+            var alamatInput  = document.getElementById('alamat_lokasi');
+            var loadingLabel = document.getElementById('alamat-loading');
+            if (!alamatInput) return;
+            if (loadingLabel) loadingLabel.classList.remove('hidden');
+            
+            // Menggunakan ArcGIS (Esri) Reverse Geocoding - Sangat akurat seperti Google & Gratis tanpa API Key
+            // Perhatikan parameter location untuk ArcGIS adalah: longitude,latitude
+            var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?location=' + lng + ',' + lat + '&f=pjson';
+            
+            fetch(url)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.address) {
+                    var addr = data.address;
+                    var jalan = addr.Address || addr.Match_addr || '';
+                    var desa = addr.Neighborhood || '';
+                    var kec = addr.District || '';
+                    var kab = addr.City || addr.Subregion || '';
+                    
+                    var components = [];
+                    if (jalan) components.push(jalan);
+                    if (desa && components.join(', ').indexOf(desa) === -1) components.push(desa);
+                    if (kec && components.join(', ').indexOf(kec) === -1) components.push(kec);
+                    if (kab && components.join(', ').indexOf(kab) === -1) components.push(kab);
+                    
+                    alamatInput.value = components.join(', ') || addr.LongLabel || '';
+                }
+                if (loadingLabel) loadingLabel.classList.add('hidden');
+            })
+            .catch(function() {
+                if (loadingLabel) loadingLabel.classList.add('hidden');
+            });
         }
 
         if (navigator.geolocation) {
@@ -285,6 +387,7 @@
                 map.setView([lat, lng], 15);
 
                 userMarker = L.marker([lat, lng], {
+                    icon: getMarkerIcon(getCurrentColor()),
                     draggable: true
                 }).addTo(map)
                 .bindPopup("📍 Lokasi Anda (Geser untuk menyesuaikan)")
@@ -316,6 +419,7 @@
             if (searchMarker) map.removeLayer(searchMarker);
 
             searchMarker = L.marker(latlng, {
+                icon: getMarkerIcon(getCurrentColor()),
                 draggable: true
             }).addTo(map)
             .bindPopup("📍 " + e.geocode.name + "<br><small>(Geser untuk menyesuaikan)</small>")
@@ -337,6 +441,7 @@
             if (searchMarker) map.removeLayer(searchMarker);
 
             userMarker = L.marker(latlng, {
+                icon: getMarkerIcon(getCurrentColor()),
                 draggable: true
             }).addTo(map)
             .bindPopup("📍 Lokasi terpilih<br><small>(Geser untuk menyesuaikan)</small>")
