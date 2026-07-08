@@ -45,7 +45,7 @@ class LaporanController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('laporans', 'public');
+            $validated['foto'] = $request->file('foto')->storeOnCloudinary('sialan/laporans')->getSecurePath();
         }
 
         Laporan::create($validated);
@@ -80,11 +80,8 @@ class LaporanController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
-            if ($laporan->foto) {
-                Storage::disk('public')->delete($laporan->foto);
-            }
-            $validated['foto'] = $request->file('foto')->store('laporans', 'public');
+            // Hapus foto lama di Cloudinary tidak dilakukan otomatis di sini
+            $validated['foto'] = $request->file('foto')->storeOnCloudinary('sialan/laporans')->getSecurePath();
         }
 
         $laporan->update($validated);
@@ -95,10 +92,7 @@ class LaporanController extends Controller
 
     public function destroy(Laporan $laporan)
     {
-        // Hapus foto jika ada
-        if ($laporan->foto) {
-            Storage::disk('public')->delete($laporan->foto);
-        }
+        // Hapus foto jika ada (Catatan: Hapus manual di Cloudinary dashboard)
 
         $laporan->delete();
 
@@ -116,9 +110,7 @@ class LaporanController extends Controller
         $laporans = Laporan::whereIn('id', $request->ids)->get();
 
         foreach ($laporans as $laporan) {
-            if ($laporan->foto) {
-                Storage::disk('public')->delete($laporan->foto);
-            }
+            // (Catatan: Hapus manual di Cloudinary dashboard)
             $laporan->delete();
         }
 

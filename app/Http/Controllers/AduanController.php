@@ -27,7 +27,8 @@ public function store(Request $request)
     $data = $request->all();
     
     if ($request->hasFile('foto')) {
-        $data['foto'] = $request->file('foto')->store('laporan', 'public');
+        // Upload ke Cloudinary dan dapatkan URL aman (HTTPS)
+        $data['foto'] = $request->file('foto')->storeOnCloudinary('sialan/laporan')->getSecurePath();
     }
 
     Laporan::create($data);

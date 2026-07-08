@@ -39,7 +39,7 @@
                 @if($perbaikan->laporan->foto)
                 <div class="col-span-2">
                     <p class="text-gray-600 mb-2">Foto Laporan</p>
-                    <img src="{{ asset('storage/' . $perbaikan->laporan->foto) }}" 
+                    <img src="{{ $perbaikan->laporan->foto }}" 
                          alt="Foto Laporan" 
                          class="max-w-md rounded shadow">
                 </div>
@@ -75,7 +75,7 @@
             @if($perbaikan->foto_sebelum)
             <div>
                 <p class="text-gray-600 text-sm mb-2">Foto Sebelum Perbaikan</p>
-                <img src="{{ asset('storage/' . $perbaikan->foto_sebelum) }}" 
+                <img src="{{ $perbaikan->foto_sebelum }}" 
                      alt="Foto Sebelum" 
                      class="w-full rounded shadow">
             </div>
@@ -84,7 +84,7 @@
             @if($perbaikan->foto_sesudah)
             <div>
                 <p class="text-gray-600 text-sm mb-2">Foto Sesudah Perbaikan</p>
-                <img src="{{ asset('storage/' . $perbaikan->foto_sesudah) }}" 
+                <img src="{{ $perbaikan->foto_sesudah }}" 
                      alt="Foto Sesudah" 
                      class="w-full rounded shadow">
             </div>

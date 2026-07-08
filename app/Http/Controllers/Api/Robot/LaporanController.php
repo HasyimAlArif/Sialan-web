@@ -38,7 +38,7 @@ class LaporanController extends Controller
         $fotoPath = null;
 
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('laporans', 'public');
+            $fotoPath = $request->file('foto')->storeOnCloudinary('sialan/laporans')->getSecurePath();
         }
 
         $laporan = Laporan::create([

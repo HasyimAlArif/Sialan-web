@@ -121,7 +121,7 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Foto Kerusakan</label>
                         @if($laporan->foto)
                         <div class="mb-3">
-                            <img src="{{ asset('storage/' . $laporan->foto) }}" alt="Foto Saat Ini" class="max-h-24 rounded-lg shadow mb-1">
+                            <img src="{{ $laporan->foto }}" alt="Foto Saat Ini" class="max-h-24 rounded-lg shadow mb-1">
                         </div>
                         @endif
                         <div class="border-2 border-dashed border-blue-300 bg-blue-50 rounded-lg p-3 text-center hover:bg-blue-100 transition cursor-pointer"

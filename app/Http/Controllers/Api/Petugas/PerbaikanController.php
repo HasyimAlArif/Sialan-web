@@ -77,15 +77,13 @@ class PerbaikanController extends Controller
             // Upload foto sebelum
             if ($request->hasFile('foto_sebelum')) {
                 $fotoSebelum = $request->file('foto_sebelum');
-                $namaSebelum = 'sebelum_' . time() . '_' . $fotoSebelum->getClientOriginalName();
-                $data['foto_sebelum'] = $fotoSebelum->storeAs('perbaikan', $namaSebelum, 'public');
+                $data['foto_sebelum'] = $fotoSebelum->storeOnCloudinary('sialan/perbaikan')->getSecurePath();
             }
 
             // Upload foto sesudah
             if ($request->hasFile('foto_sesudah')) {
                 $fotoSesudah = $request->file('foto_sesudah');
-                $namaSesudah = 'sesudah_' . time() . '_' . $fotoSesudah->getClientOriginalName();
-                $data['foto_sesudah'] = $fotoSesudah->storeAs('perbaikan', $namaSesudah, 'public');
+                $data['foto_sesudah'] = $fotoSesudah->storeOnCloudinary('sialan/perbaikan')->getSecurePath();
             }
 
             // Simpan perbaikan
@@ -106,12 +104,8 @@ class PerbaikanController extends Controller
                     'id' => $perbaikan->id,
                     'tindakan' => $perbaikan->tindakan,
                     'tanggal_perbaikan' => $perbaikan->tanggal_perbaikan->format('Y-m-d'),
-                    'foto_sebelum' => $perbaikan->foto_sebelum 
-                        ? asset('storage/' . $perbaikan->foto_sebelum) 
-                        : null,
-                    'foto_sesudah' => $perbaikan->foto_sesudah 
-                        ? asset('storage/' . $perbaikan->foto_sesudah) 
-                        : null,
+                    'foto_sebelum' => $perbaikan->foto_sebelum, // Sudah berupa URL Cloudinary
+                    'foto_sesudah' => $perbaikan->foto_sesudah, // Sudah berupa URL Cloudinary
                     'status' => $perbaikan->status,
                 ],
             ], 201);

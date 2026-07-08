@@ -72,7 +72,7 @@
                     Foto Kerusakan
                 </h3>
                 <div class="flex-1 overflow-hidden rounded-xl shadow-md border border-gray-200">
-                    <img src="{{ asset('storage/' . $laporan->foto) }}"
+                    <img src="{{ $laporan->foto }}"
                          alt="Foto Kerusakan"
                          class="w-full h-full object-cover"
                          style="min-height: 360px; max-height: 360px;">
@@ -357,7 +357,7 @@
             try {
                 var lat    = {{ (float)$laporan->latitude }};
                 var lng    = {{ (float)$laporan->longitude }};
-                var foto   = @json($laporan->foto ? asset('storage/' . $laporan->foto) : null);
+                var foto   = @json($laporan->foto ? $laporan->foto : null);
                 var judul  = @json($laporan->judul);
                 var alamat = @json($laporan->alamat_lokasi ?? '-');
                 var navUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng;

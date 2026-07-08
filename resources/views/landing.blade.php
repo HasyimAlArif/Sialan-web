@@ -76,7 +76,7 @@
                             <div class="carousel-slide">
                                 <div
                                     class="bg-gray-200 rounded-xl overflow-hidden shadow-lg h-[300px] md:h-[300px] relative group">
-                                    <img src="/storage/{{ $laporan->foto }}"
+                                    <img src="{{ $laporan->foto }}"
                                         class="w-full h-full object-cover transition transform group-hover:scale-110 duration-500"
                                         alt="{{ $laporan->judul }}"
                                         onerror="this.src='https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80'" />
@@ -347,7 +347,7 @@
                 if (report.latitude && report.longitude) {
                     var popupContent = `
                     <div class="custom-popup">
-                        <img src="/storage/${report.foto}" class="popup-image" alt="${report.judul}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
+                        <img src="${report.foto}" class="popup-image" alt="${report.judul}" onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'">
                         <div class="popup-info">
                             <h3 class="font-bold text-gray-800 text-sm mb-1 line-clamp-2">${report.judul}</h3>
                             <p class="text-xs text-gray-500 mb-3 flex items-start">

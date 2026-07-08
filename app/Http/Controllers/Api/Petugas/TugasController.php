@@ -35,9 +35,7 @@ class TugasController extends Controller
                 'nama_pelapor' => $penugasan->laporan->nama_pelapor,
                 'no_hp' => $penugasan->laporan->no_hp,
                 'alamat' => $penugasan->laporan->alamat_lokasi, // Kirim alamat_lokasi
-                'foto' => $penugasan->laporan->foto 
-                    ? asset('storage/' . $penugasan->laporan->foto) 
-                    : null,
+                'foto' => $penugasan->laporan->foto,
                 'status' => $penugasan->laporan->status,
                 'latitude' => $penugasan->laporan->latitude,
                 'longitude' => $penugasan->laporan->longitude,
@@ -92,9 +90,7 @@ class TugasController extends Controller
             'alamat' => $penugasan->laporan->alamat_lokasi, // Ubah ke 'alamat' untuk konsistensi
             'latitude' => $penugasan->laporan->latitude,
             'longitude' => $penugasan->laporan->longitude,
-            'foto' => $penugasan->laporan->foto 
-                ? asset('storage/' . $penugasan->laporan->foto) 
-                : null,
+            'foto' => $penugasan->laporan->foto,
             'status' => $penugasan->laporan->status,
             'created_at' => $penugasan->laporan->created_at->format('Y-m-d H:i:s'),
         ],
@@ -105,12 +101,8 @@ class TugasController extends Controller
             'id' => $penugasan->laporan->perbaikan->id,
             'tindakan' => $penugasan->laporan->perbaikan->tindakan,
             'tanggal_perbaikan' => $penugasan->laporan->perbaikan->tanggal_perbaikan->format('Y-m-d'),
-            'foto_sebelum' => $penugasan->laporan->perbaikan->foto_sebelum 
-                ? asset('storage/' . $penugasan->laporan->perbaikan->foto_sebelum) 
-                : null,
-            'foto_sesudah' => $penugasan->laporan->perbaikan->foto_sesudah 
-                ? asset('storage/' . $penugasan->laporan->perbaikan->foto_sesudah) 
-                : null,
+            'foto_sebelum' => $penugasan->laporan->perbaikan->foto_sebelum,
+            'foto_sesudah' => $penugasan->laporan->perbaikan->foto_sesudah,
             'status' => $penugasan->laporan->perbaikan->status,
         ] : null,
         'created_at' => $penugasan->created_at->format('Y-m-d H:i:s'), // Tambahkan ini
